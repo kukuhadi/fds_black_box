@@ -1,0 +1,11 @@
+{
+	“nokartu”:”12345678909876543”,
+	“amounttransaction”:”10000.00”,
+	“terminaltype”:”ATM BRI”,
+	“terminalid”:”0001”,
+	“terminalinformation”:”Uji Coba”,
+	“statustransaction”:”00 - Sukses”,
+	“transdate”:”2018-01-01”,
+	“transtime”:”14:30:00”,
+	“descriptiontransaction”:”ADD”
+}
