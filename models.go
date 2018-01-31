@@ -131,7 +131,8 @@ type Prosw struct{
 	Productid_prosw	 		     string	 	`json:"productid_prosw"`
 	Terminaltype_prosw	 		 string	 	`json:"TerminalType_prosw"`
 	Isreversal_prosw	 		 	 string	 	`json:"IsReversal_prosw"`
-	Issuccess,termid2_prosw	 string	 	`json:"IsSuccess,termid2_prosw"`
+	Issuccess_prosw					 string 	`json:"IsSuccess_prosw"`
+	termid2_prosw	 					 string	 	`json:"termid2_prosw"`
 	Brnchcode2_prosw	 		 	 string	 	`json:"brnchcode2_prosw"`
 	Remoteaccno2_prosw	 		 string	 	`json:"remoteaccno2_prosw"`
 	Transdate_origin_prosw	 string	 	`json:"transdate_origin_prosw"`
