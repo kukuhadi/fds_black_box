@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"math"
 	"github.com/keltia/leftpad"
-	//"fmt"
+	"os"
 )
 
 type Parsechecktransaction struct{
@@ -304,71 +304,75 @@ func (j Prosw) CompleteInformation() Completemessage {
 
 				if SelisihWaktu < 60 { // Menggunakan satuan menit melakukan perbandingan kode status transaksi.
 					if i.Statustransaction == "00" && tempSequence.responseTemp == "00" {
-							score += 0
+							score += os.Getenv("SA_1")
 					} else if (i.Statustransaction == "51" || i.Statustransaction == "61") && tempSequence.responseTemp == "00" {
-							score += 80
+							score += os.Getenv("SA_2")
 					} else if i.Statustransaction == "00" && (tempSequence.responseTemp == "51" || tempSequence.responseTemp == "61") {
-							score += 90
+							score += os.Getenv("SA_3")
 					} else if (i.Statustransaction == "51" || i.Statustransaction == "61") && (tempSequence.responseTemp == "51" || tempSequence.responseTemp == "61") {
-							score += 100
+							score += os.Getenv("SA_4")
 					}
 				} else if SelisihWaktu > 60 && SelisihWaktu < 300 {
 					if i.Statustransaction == "00" && tempSequence.responseTemp == "00" {
-							score += 0
+							score += os.Getenv("SA_5")
 					} else if (i.Statustransaction == "51" || i.Statustransaction == "61") && tempSequence.responseTemp == "00" {
-							score += 60
+							score += os.Getenv("SA_6")
 					} else if i.Statustransaction == "00" && (tempSequence.responseTemp == "51" || tempSequence.responseTemp == "61") {
-							score += 70
+							score += os.Getenv("SA_7")
 					} else if (i.Statustransaction == "51" || i.Statustransaction == "61") && (tempSequence.responseTemp == "51" || tempSequence.responseTemp == "61") {
-							score += 80
+							score += os.Getenv("SA_8")
 					}
 				} else if SelisihWaktu > 300 && SelisihWaktu < 720 {
 					if i.Statustransaction == "00" && tempSequence.responseTemp == "00" {
-							score += 0
+							score += os.Getenv("SA_9")
 					} else if (i.Statustransaction == "51" || i.Statustransaction == "61") && tempSequence.responseTemp == "00" {
-							score += 40
+							score += os.Getenv("SA_10")
 					} else if i.Statustransaction == "00" && (tempSequence.responseTemp == "51" || tempSequence.responseTemp == "61") {
-							score += 50
+							score += os.Getenv("SA_11")
 					} else if (i.Statustransaction == "51" || i.Statustransaction == "61") && (tempSequence.responseTemp == "51" || tempSequence.responseTemp == "61") {
-							score += 60
+							score += os.Getenv("SA_12")
 					}
 				} else if SelisihWaktu > 720 && SelisihWaktu < 1440 {
 					if i.Statustransaction == "00" && tempSequence.responseTemp == "00" {
-							score += 0
+							score += os.Getenv("SA_13")
 					} else if (i.Statustransaction == "51" || i.Statustransaction == "61") && tempSequence.responseTemp == "00" {
-							score += 20
+							score += os.Getenv("SA_14")
 					} else if i.Statustransaction == "00" && (tempSequence.responseTemp == "51" || tempSequence.responseTemp == "61") {
-							score += 30
+							score += os.Getenv("SA_15")
 					} else if (i.Statustransaction == "51" || i.Statustransaction == "61") && (tempSequence.responseTemp == "51" || tempSequence.responseTemp == "61") {
-							score += 40
+							score += os.Getenv("SA_16")
 					}
 				} else {
 					if i.Statustransaction == "00" && tempSequence.responseTemp == "00" {
-							score += 0
+							score += os.Getenv("SA_17")
 					} else if (i.Statustransaction == "51" || i.Statustransaction == "61") && tempSequence.responseTemp == "00" {
-							score += 10
+							score += 1os.Getenv("SA_18")
 					} else if i.Statustransaction == "00" && (tempSequence.responseTemp == "51" || tempSequence.responseTemp == "61") {
-							score += 20
+							score += os.Getenv("SA_19")
 					} else if (i.Statustransaction == "51" || i.Statustransaction == "61") && (tempSequence.responseTemp == "51" || tempSequence.responseTemp == "61") {
-							score += 30
+							score += os.Getenv("SA_20")
 					}
 				}
 
 				if SelisihWaktu < 120 { // Menggunakan satuan menit melakukan perbandingan  mata uang
 					if j.Ccycode_prosw == "360" && tempSequence.matauangTemp == "360" {
-						score += 0 // Justifikasinya adalah karena BRI bank di Indonesia, dan kemungkinan terbesar menggunakan IDR dalam bertransaksi.
+						score += os.Getenv("SA_21") // Justifikasinya adalah karena BRI bank di Indonesia, dan kemungkinan terbesar menggunakan IDR dalam bertransaksi.
 					} else if j.Ccycode_prosw != "360" && tempSequence.matauangTemp == "360" {
-						score += 1000 // Justifikasinya adalah engga mungkin dalam waktu kurang dari 120 menit berubah mata uang transaksinya.
+						score += os.Getenv("SA_22") // Justifikasinya adalah engga mungkin dalam waktu kurang dari 120 menit berubah mata uang transaksinya.
 					} else if j.Ccycode_prosw == "360" && tempSequence.matauangTemp != "360" {
-						score += 750
+						score += os.Getenv("SA_23")
+					} else if j.Ccycode_prosw == "360" && tempSequence.matauangTemp != "360" {
+						score += os.Getenv("SA_24")
 					}
 				} else {
 					if j.Ccycode_prosw == "360" && tempSequence.matauangTemp == "360" {
-						score += 0 // Justifikasinya adalah karena BRI bank di Indonesia, dan kemungkinan terbesar menggunakan IDR dalam bertransaksi.
+						score += os.Getenv("SA_25") // Justifikasinya adalah karena BRI bank di Indonesia, dan kemungkinan terbesar menggunakan IDR dalam bertransaksi.
 					} else if j.Ccycode_prosw != "360" && tempSequence.matauangTemp == "360" {
-						score += 300 // Justifikasinya adalah engga mungkin dalam waktu kurang dari 120 menit berubah mata uang transaksinya.
+						score += os.Getenv("SA_26") // Justifikasinya adalah engga mungkin dalam waktu kurang dari 120 menit berubah mata uang transaksinya.
 					} else if j.Ccycode_prosw == "360" && tempSequence.matauangTemp != "360" {
-						score += 400
+						score += 3os.Getenv("SA_27")
+					} else if j.Ccycode_prosw != "360" && tempSequence.matauangTemp != "360" {
+						score += os.Getenv("SA_28")
 					}
 				}
 				scorePhase1 = score
