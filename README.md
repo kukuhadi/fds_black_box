@@ -12,6 +12,8 @@ Package - package ini harus diinstal di mesin source code yang digunakan untuk m
 > github.com/gin-gonic/gin
 > github.com/go-sql-driver/mysql
 ```
+
+### Initialize Aplikasi
 Setelah seluruh kebutuhan diatas selesai, maka periksa kembali parameter yang akan digunakan di dalam operasional aplikasi. 
 
 ```sh
