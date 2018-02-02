@@ -12,3 +12,12 @@ Package - package ini harus diinstal di mesin source code yang digunakan untuk m
 > github.com/gin-gonic/gin
 > github.com/go-sql-driver/mysql
 ```
+Setelah seluruh kebutuhan diatas selesai, maka periksa kembali parameter yang akan digunakan di dalam operasional aplikasi. 
+
+```sh
+  os.Setenv("hostDatabase", "[IP SERVER DATABASE]")
+  os.Setenv("usernameDBMysql", "[USERNAME DB]")
+  os.Setenv("passwordDBMysql", "[PASSWORD DB]")
+  os.Setenv("schemaDatabase", "[SCHEMA DB - ATM LOCATION]")
+  os.Setenv("schemaDatabase_Seq", "[SCHEMA DB - SEQ ACTIVITY]")
+```
