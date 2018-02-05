@@ -1,24 +1,29 @@
 package main
 
 import "fmt"
+import "os"
 import "database/sql"
 import _ "github.com/go-sql-driver/mysql"
 import "github.com/mediocregopher/radix.v2/redis"
 import "gopkg.in/resty.v1"
 
 func connect() (*sql.DB, error) {
-    db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/fds_db")
+    connectionString := os.Getenv("usernameDBMysql") + ":" + os.Getenv("passwordDBMysql") + "@tcp("+os.Getenv("hostDatabase")+")/"+os.Getenv("schemaDatabase")
+    db, err := sql.Open("mysql", connectionString)
     if err != nil {
         return nil, err
+        fmt.Println(err.Error())
     }
 
     return db, nil
 }
 
 func connectSequenceData() (*sql.DB, error) {
-    db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/sequence")
+    connectionString := os.Getenv("usernameDBMysql") + ":" + os.Getenv("passwordDBMysql") + "@tcp("+os.Getenv("hostDatabase")+")/"+os.Getenv("schemaDatabase_Seq")
+    db, err := sql.Open("mysql", connectionString)
     if err != nil {
         return nil, err
+        fmt.Println(err.Error())
     }
 
     return db, nil
@@ -32,7 +37,7 @@ func getRedisData(noKartu string) Previoustransaction {
   result.dateTransaction = ""
   result.timeTransaction = ""
   result.statusInformation = "Success"
-  conn, err := redis.Dial("tcp", "104.196.98.210:6379")
+  conn, err := redis.Dial("tcp", os.Getenv("redisServer"))
     if err != nil {
         result.statusInformation = err.Error()+noKartu
         return result
@@ -82,7 +87,7 @@ func getRedisData(noKartu string) Previoustransaction {
   func (x Parsesetredisdata) setRedisData() string {
     var hasil string
     // hasil = "Coba Masukin ke Redis "+x.nomerKartu
-    conn, err := redis.Dial("tcp", "104.196.98.210:6379")
+    conn, err := redis.Dial("tcp", os.Getenv("redisServer"))
       if err != nil {
           hasil = "Failed to Connect " + err.Error()
       }
@@ -107,9 +112,10 @@ func findLocation(terminalID string) Locationterminal {
     defer db.Close()
 
     err = db.
-        QueryRow("select langtitude, longitude from Tbl_atmlocation where id_atm = '" + terminalID + "' or id_atm like '%"+terminalID+"%'").
+        QueryRow("select latitude, longitude from Tbl_atmlocation where id_atm = '" + terminalID + "' or id_atm like '%"+terminalID+"%'").
         Scan(&result.latitudeTerminal, &result.longitudeTerminal)
         result.statusInformation = "FOUND"
+        fmt.Println(terminalID)
     if err != nil {
         fmt.Println(err.Error())
         return result
@@ -129,7 +135,7 @@ func (sequenceData Tempsequence) setDataSequence() string {
     defer db.Close()
 
     // perform a db.Query insert
-    insert, err := db.Query("INSERT INTO Tbl_Sequence (kartu, responcode, ccycode, waktu, score) VALUES ( sequenceData.kartuTemp, sequenceData.responseTemp, sequenceData.matauangTemp, sequenceData.waktuTemp, sequenceData.scoringTemp )")
+    insert, err := db.Query("INSERT INTO Tbl_sequence (kartu, responcode, ccycode, waktu, score) VALUES ( '"+sequenceData.kartuTemp+"', '"+sequenceData.responseTemp+"', '"+sequenceData.matauangTemp+"', '"+sequenceData.waktuTemp+"', '"+sequenceData.scoringTemp+"' )")
 
     // if there is an error inserting, handle it
     if err != nil {
@@ -151,7 +157,7 @@ func findListSequence(nomerKartu string) *sql.Rows {
     defer db.Close()
 
     // Execute the query
-  	results, err := db.Query("SELECT kartu, responcode, ccycode, waktu, idrecord FROM Tbl_Sequence where kartu = '"+nomerKartu+"' order by waktu desc limit 5")
+  	results, err := db.Query("SELECT kartu, responcode, ccycode, waktu, score, idrecord FROM Tbl_sequence where kartu = '"+nomerKartu+"' order by waktu desc limit 5")
   	if err != nil {
   		panic(err.Error()) // proper error handling instead of panic in your app
   	}
@@ -166,9 +172,9 @@ func deleteOldSequence(idRecord string, nomerKartu string) string {
       return "FAILED"
   }
   defer db.Close()
-
+  fmt.Println(idRecord)
   // Execute the query
-  _, err = db.Query("DELETE Tbl_Sequence where idrecord not in ("+idRecord+") and kartu = '"+nomerKartu+"'")
+  _, err = db.Query("DELETE from Tbl_sequence where idrecord not in ("+idRecord+") and kartu = '"+nomerKartu+"'")
   if err != nil {
     panic(err.Error()) // proper error handling instead of panic in your app
     return "FAILED"

@@ -4,11 +4,13 @@ import "os"
 
 func initializeRole(){
   // Parameter database
-  os.Setenv("hostDatabase", "")
-  os.Setenv("usernameDBMysql", "")
-  os.Setenv("passwordDBMysql", "")
-  os.Setenv("schemaDatabase", "")
-  os.Setenv("schemaDatabase_Seq", "")
+  os.Setenv("hostDatabase", "172.18.133.252")
+  os.Setenv("usernameDBMysql", "root")
+  os.Setenv("passwordDBMysql", "P@ssw0rd")
+  os.Setenv("schemaDatabase", "fds_db")
+  os.Setenv("schemaDatabase_Seq", "fds_db")
+  os.Setenv("redisServer", "172.18.133.252:6379")
+
   // Parameter scoring
   os.Setenv("LA_1", "40")
   os.Setenv("LA_2", "50")

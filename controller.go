@@ -6,127 +6,12 @@ import (
 	"math"
 	"github.com/keltia/leftpad"
 	"os"
+  "fmt"
+  "strings"
 )
 
 type Parsechecktransaction struct{
 	productID_parse, seconData_parse, branchCode_parse string
-}
-
-func (j Parsecalculatescore) calculateScore() Returncalculatescore {
-	// Menghitung Score dengan menggunakan
-		// - Selisih Waktu
-		// - Status Transaksi Sebelum dengan Saat ini.
-		// - Selisih Jarak antara terminal ID sebelum dengan sesaat ini.
-	indicator := "Kosong"
-	var result = Returncalculatescore{}
-	result.labelFraud = ""
-	result.scoreFraud = ""
-	result.selisihJarak = ""
-	result.selisihWaktu = ""
-	result.errorCalculate = "Success"
-	// Selisih Waktu
-	constFormatDateTime := "2006-01-02 15:04"
-	var Score int
-	Score = 0
-
-	DateTimeString := j.currentDate + " " + j.currentTime
-	PastDateTimeString := j.pastDate + " " + j.pastTime
-
-	parserStartDate, errParse1 := time.Parse(constFormatDateTime, DateTimeString)
-	parserEndDate, errParse2 := time.Parse(constFormatDateTime, PastDateTimeString)
-
-	if errParse1 != nil {
-        result.errorCalculate = "Gagal Konversi Tanggal Awal " + errParse1.Error()
-        return result
-    }
-
-    if errParse2 != nil {
-        result.errorCalculate = "Gagal Konversi Tanggal Akhir " + errParse2.Error()
-        return result
-    }
-
-    delta := parserStartDate.Sub(parserEndDate)
-    SelisihWaktu := delta.Hours() // Selisih dalam satuan jam
-
-    // Selisih Jarak
-    flNewLatitude,errflNewLatitude := strconv.ParseFloat(j.currentLatitude, 64)
-    flNewLongitude,errflNewLongitude := strconv.ParseFloat(j.currentLongitude, 64)
-    flOldLatitude,errflOldLatitude := strconv.ParseFloat(j.pastLatitude, 64)
-    flOldLongitude,errflOldLongitude := strconv.ParseFloat(j.pastLongitude, 64)
-    if errflOldLongitude != nil {
-	  result.errorCalculate = "Gagal Konversi Longtitude Baru " + errflOldLongitude.Error()
-      return result
-	}
-
-	if errflNewLatitude != nil {
-		result.errorCalculate = "Gagal Konversi Latitude Baru " + errflNewLatitude.Error()
-      	return result
-	}
-
-	if errflOldLatitude != nil {
-		result.errorCalculate = "Gagal Konversi Latitude Lama " + errflOldLatitude.Error()
-      	return result
-	}
-
-	if errflNewLongitude != nil {
-		result.errorCalculate = "Gagal Konversi Longtitude Lama " + errflNewLongitude.Error()
-      	return result
-	}
-
-    SelisihJarak := Distance(flNewLatitude, flNewLongitude, flOldLatitude, flOldLongitude)
-
-    // Menentukan Score
-    // Berdasarkan Status Transaksi Sebelumnya
-    if j.pastStatus == "51 - Saldo tidak cukup" { // 51 - Saldo tidak cukup
-    	Score += 40
-    } else if j.pastStatus == "61 - Transaksi melebihi limit transaksi harian" { //"61 - Transaksi melebihi limit transaksi harian"
-    	Score += 50
-    } else if j.pastStatus == "00 - Sukses" { //
-    	Score += 10
-    } else {
-    	Score += 0
-    }
-
-    // Berdasarkan Status Transaksi Saat Ini
-    if j.currentStatus == "51 - Saldo tidak cukup" { // 51 - Saldo tidak cukup
-    	Score += 40
-    } else if j.currentStatus == "61 - Transaksi melebihi limit transaksi harian" { //"61 - Transaksi melebihi limit transaksi harian"
-    	Score += 50
-    } else if j.currentStatus == "00 - Sukses" { //
-    	Score += 10
-    } else {
-    	Score += 0
-    }
-
-    // Berdasarkan kombinasi Selisih Waktu dan Jarak
-    // Jika waktu kurang dari 1 jam, menggunakan acuan kendaraan 80-120 km per jam
-    // Jika waktu antara 1 - 5 jam, menggunakan acuan kendaraan 200 km per jam (pesawat dan kereta)
-    if SelisihWaktu < 1 && SelisihJarak > 100 {
-    	Score += 50
-    } else if SelisihWaktu < 5 && SelisihWaktu > 1 && 1000 > SelisihJarak && SelisihJarak > 100 {
-    	Score += 40
-    } else if SelisihWaktu < 12 && SelisihWaktu > 5 && SelisihJarak > 1000 {
-    	Score += 30
-    } else if SelisihWaktu > 12 && SelisihJarak > 1000 {
-    	Score += 20
-    } else {
-    	Score += 10
-    }
-
-    if Score > 120 {
-    	indicator = "Merah"
-    } else if Score < 120 && Score > 60 {
-    	indicator = "Kuning"
-    } else {
-    	indicator = "Hijau"
-    }
-
-    result.labelFraud = indicator
-		result.scoreFraud = strconv.FormatInt(int64(Score), 10)
-		result.selisihJarak = strconv.FormatFloat(SelisihJarak, 'f', -1, 32)
-		result.selisihWaktu = strconv.FormatFloat(SelisihWaktu, 'f', -1, 32)
-
-    return result
 }
 
 func (t Parsechecktransaction) isCheckTransaction() bool {
@@ -205,11 +90,15 @@ func (j Prosw) CompleteInformation() Completemessage {
 	i.Terminaltype	= j.Terminaltype_prosw
 	i.Terminalid = j.Termid_prosw
 	x := j.Termid_prosw
-	i.Terminalinformation = j.Narrative_prosw
+  x = x[len(x)-7:]
+	i.Terminalinformation = j.Firstdata7_prosw
 	i.Statustransaction = j.Responcode_prosw
 	i.Transdate = j.Transdate_prosw
+  i.Transdate = strings.Replace(i.Transdate, " 00:00:00", "", -1)
   iTranstimeConvert, _ := strconv.Atoi(j.Transtime_prosw)
 	i.Transtime = secondsToTimeStamp(iTranstimeConvert)
+  i.Transtime = i.Transtime[0:5]
+  fmt.Println(i.Transtime)
 	i.Descriptiontransaction = j.Narrative_prosw
 
 	locationAnalyst := true
@@ -222,10 +111,11 @@ func (j Prosw) CompleteInformation() Completemessage {
 		if i.Terminaltype == "ATM_BRI" {
 			sX,_ := leftpad.PadChar(x, 7, '0')
 			x = "BRI"+sX
+      fmt.Println(x)
 		}
 		locationString = findLocation(x)
 
-		if locationString.statusInformation != "FOUND" {
+		if locationString.statusInformation == "FOUND" {
 			i.Longitude = locationString.longitudeTerminal
 			i.Latitude = locationString.latitudeTerminal
 		} else {
@@ -286,17 +176,18 @@ func (j Prosw) CompleteInformation() Completemessage {
 				recordIDTemp = tempSequence.idRecordTemp
 				DateTimeString = i.Transdate + " " + i.Transtime
 				PastDateTimeString = tempSequence.waktuTemp
+        PastDateTimeString = PastDateTimeString[0:16]
 
 				parserStartDate, errParse1 := time.Parse(constFormatDateTime, DateTimeString)
 				parserEndDate, errParse2 := time.Parse(constFormatDateTime, PastDateTimeString)
 
 				if errParse1 != nil {
           i.Remark = "Error : "+errParse1.Error()
-          return i
+          fmt.Println(errParse1.Error())
         }
 				if errParse2 != nil {
           i.Remark = "Error : "+errParse2.Error()
-          return i
+          fmt.Println(errParse2.Error())
         }
 
 		    delta := parserStartDate.Sub(parserEndDate)
@@ -385,14 +276,22 @@ func (j Prosw) CompleteInformation() Completemessage {
 		}
 
 		// menghapus record diluar 5 aktivitas terakhir dari masing-masing kartu
-		deleteOldSequence(recordIDTemp, i.Nokartu)
+    if recordIDTemp != "" {
+        deleteOldSequence(recordIDTemp, i.Nokartu)
+    }
 
 		// menambahkan record baru
-		tempSequence.kartuTemp = i.Nokartu
+		tempSequence.kartuTemp = j.Cardno_prosw
 		tempSequence.responseTemp = i.Statustransaction
 		tempSequence.matauangTemp = j.Ccycode_prosw
 		tempSequence.scoringTemp = strconv.Itoa(scorePhase1)
 		tempSequence.waktuTemp = DateTimeString
+
+    fmt.Println("Kartu : " + j.Cardno_prosw)
+    fmt.Println("Response : " + i.Statustransaction)
+    fmt.Println("Mata Uang : " + j.Ccycode_prosw)
+    fmt.Println("Scoring : " + strconv.Itoa(scorePhase1))
+    fmt.Println("Date Time : " + DateTimeString)
 
 		tempSequence.setDataSequence()
 
@@ -406,9 +305,14 @@ func (j Prosw) CompleteInformation() Completemessage {
     }
 
 		i.Scorefraud_sequence = strconv.Itoa(score)
+    i.Kodematauang = j.Ccycode_prosw
 
 		// ** END SEQUENCE ANALYST ** //
     tambahanRemark := ""
+    fmt.Println("Location Analyst : " + strconv.FormatBool(locationAnalyst))
+    fmt.Println("previousTransaction : " + strconv.FormatBool(prevTransactionData))
+
+    tLocationAnalyst_0 := time.Now()
 	if locationAnalyst {
 			parseScore.currentLatitude = i.Latitude
 			parseScore.currentLongitude = i.Longitude
@@ -441,14 +345,132 @@ func (j Prosw) CompleteInformation() Completemessage {
 			parserSetRedisData.nomerKartu = i.Nokartu
 			tambahanRemark = parserSetRedisData.setRedisData()
 	}
-
-	// Set Data untuk sequenceAnalyst.
+  tLocationAnalyst_1 := time.Now()
+  fmt.Println("The call took %v to run.\n", tLocationAnalyst_1.Sub(tLocationAnalyst_0))
 
 	i.Remark = i.Remark + ";" + tambahanRemark
 	i.Remark = previousTransaction.statusInformation
 	i.Status = prevTransactionData
 	return i
 
+}
+
+
+func (j Parsecalculatescore) calculateScore() Returncalculatescore {
+	// Menghitung Score dengan menggunakan
+		// - Selisih Waktu
+		// - Status Transaksi Sebelum dengan Saat ini.
+		// - Selisih Jarak antara terminal ID sebelum dengan sesaat ini.
+	indicator := "Kosong"
+	var result = Returncalculatescore{}
+	result.labelFraud = ""
+	result.scoreFraud = ""
+	result.selisihJarak = ""
+	result.selisihWaktu = ""
+	result.errorCalculate = "Success"
+	// Selisih Waktu
+	constFormatDateTime := "2006-01-02 15:04"
+	var Score int
+	Score = 0
+
+	DateTimeString := j.currentDate + " " + j.currentTime
+	PastDateTimeString := j.pastDate + " " + j.pastTime
+
+	parserStartDate, errParse1 := time.Parse(constFormatDateTime, DateTimeString)
+	parserEndDate, errParse2 := time.Parse(constFormatDateTime, PastDateTimeString)
+
+	if errParse1 != nil {
+        result.errorCalculate = "Gagal Konversi Tanggal Awal " + errParse1.Error()
+        return result
+    }
+
+    if errParse2 != nil {
+        result.errorCalculate = "Gagal Konversi Tanggal Akhir " + errParse2.Error()
+        return result
+    }
+
+    delta := parserStartDate.Sub(parserEndDate)
+    SelisihWaktu := delta.Hours() // Selisih dalam satuan jam
+
+    // Selisih Jarak
+    flNewLatitude,errflNewLatitude := strconv.ParseFloat(j.currentLatitude, 64)
+    flNewLongitude,errflNewLongitude := strconv.ParseFloat(j.currentLongitude, 64)
+    flOldLatitude,errflOldLatitude := strconv.ParseFloat(j.pastLatitude, 64)
+    flOldLongitude,errflOldLongitude := strconv.ParseFloat(j.pastLongitude, 64)
+    if errflOldLongitude != nil {
+	  result.errorCalculate = "Gagal Konversi Longtitude Baru " + errflOldLongitude.Error()
+      return result
+	}
+
+	if errflNewLatitude != nil {
+		result.errorCalculate = "Gagal Konversi Latitude Baru " + errflNewLatitude.Error()
+      	return result
+	}
+
+	if errflOldLatitude != nil {
+		result.errorCalculate = "Gagal Konversi Latitude Lama " + errflOldLatitude.Error()
+      	return result
+	}
+
+	if errflNewLongitude != nil {
+		result.errorCalculate = "Gagal Konversi Longtitude Lama " + errflNewLongitude.Error()
+      	return result
+	}
+
+    SelisihJarak := Distance(flNewLatitude, flNewLongitude, flOldLatitude, flOldLongitude)
+
+    // Menentukan Score
+    // Berdasarkan Status Transaksi Sebelumnya
+    if j.pastStatus == "51" { // 51 - Saldo tidak cukup
+    	Score += 40
+    } else if j.pastStatus == "61" { //"61 - Transaksi melebihi limit transaksi harian"
+    	Score += 50
+    } else if j.pastStatus == "00" { //
+    	Score += 10
+    } else {
+    	Score += 0
+    }
+
+    // Berdasarkan Status Transaksi Saat Ini
+    if j.currentStatus == "51" { // 51 - Saldo tidak cukup
+    	Score += 40
+    } else if j.currentStatus == "61" { //"61 - Transaksi melebihi limit transaksi harian"
+    	Score += 50
+    } else if j.currentStatus == "00" { //
+    	Score += 10
+    } else {
+    	Score += 0
+    }
+
+    // Berdasarkan kombinasi Selisih Waktu dan Jarak
+    // Jika waktu kurang dari 1 jam, menggunakan acuan kendaraan 80-120 km per jam
+    // Jika waktu antara 1 - 5 jam, menggunakan acuan kendaraan 200 km per jam (pesawat dan kereta)
+    if SelisihWaktu < 1 && SelisihJarak > 100 {
+    	Score += 100
+    } else if SelisihWaktu < 5 && SelisihWaktu > 1 && 1000 > SelisihJarak && SelisihJarak > 100 {
+    	Score += 90
+    } else if SelisihWaktu < 12 && SelisihWaktu > 5 && SelisihJarak > 1000 {
+    	Score += 80
+    } else if SelisihWaktu > 12 && SelisihJarak > 1000 {
+    	Score += 70
+    } else {
+    	Score += 10
+    }
+
+    if Score > 99 {
+    	indicator = "Merah"
+    } else if Score < 99 && Score > 50 {
+    	indicator = "Kuning"
+    } else {
+    	indicator = "Hijau"
+    }
+
+    result.labelFraud = indicator
+		result.scoreFraud = strconv.FormatInt(int64(Score), 10)
+		result.selisihJarak = strconv.FormatFloat(SelisihJarak, 'f', -1, 32)
+		result.selisihWaktu = strconv.FormatFloat(SelisihWaktu, 'f', -1, 32)
+
+    return result
 }
 
 func convertStringToInt(sString string) int {
