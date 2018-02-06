@@ -31,7 +31,7 @@ func MessageStreamComplete(c *gin.Context){
         // Get All Information from previous transaction and location from each terminal.
         parseCheckTransaction.productID_parse = json.Productid_prosw
         parseCheckTransaction.seconData_parse = json.Seconddata1_prosw
-        parseCheckTransaction.branchCode_parse = json.Brnchcode_prosw
+        parseCheckTransaction.branchCode_parse = json.Itobranch_prosw
 
         status := parseCheckTransaction.isCheckTransaction()
 
