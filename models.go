@@ -181,7 +181,7 @@ type Previoustransaction struct{
 	latitudeTerminal, longitudeTerminal, statusInformation, statusTransaction, dateTransaction, timeTransaction 	string
 }
 
-type Parsecalculatescore struct{
+type Parselocationanalyst struct{
 	currentLatitude, currentLongitude, pastLatitude, pastLongitude, currentDate, currentTime, currentStatus, pastDate, pastTime, pastStatus string
 }
 
@@ -189,7 +189,7 @@ type Parsesetredisdata struct{
 	latitudeTerminal, longitudeTerminal, statusTransaction, dateTransaction, timeTransaction, nomerKartu string
 }
 
-type Returncalculatescore struct {
+type Returnlocationanalyst struct {
 	labelFraud, scoreFraud, selisihWaktu, selisihJarak, errorCalculate string
 }
 
