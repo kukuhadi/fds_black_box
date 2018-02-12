@@ -32,6 +32,7 @@ func MessageStreamComplete(c *gin.Context){
         parseCheckTransaction.productID_parse = json.Productid_prosw
         parseCheckTransaction.seconData_parse = json.Seconddata1_prosw
         parseCheckTransaction.branchCode_parse = json.Itobranch_prosw
+        parseCheckTransaction.proccode_parse = json.Proccode_prosw
 
         status := parseCheckTransaction.isCheckTransaction()
 
